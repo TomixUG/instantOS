@@ -472,16 +472,13 @@ if [ -e ~/.config/instantos/autostart.sh ]; then
     bash ~/.config/instantos/autostart.sh
 fi &
 
-# start all .desktop programs from ~/.config/autostart
-for f in ~/.config/autostart/*.desktop; do  
-    [ -f "$f" ] || break
-    DISABLED=$(grep '^NotShowIn' "$f" | tail -1 | sed 's/^NotShowIn=//' | sed 's/%.//' | sed 's/^"//g' | sed 's/" *$//g')
-    IFS=';' read -r -a array <<< "$DISABLED"
-    if ! [[ " ${array[*]} " == *" default "* ]]; then
-        #startup enabled
+if ! iconf -i nodesktopautostart; then
+    # start all .desktop programs from ~/.config/autostart
+    for f in ~/.config/autostart/*.desktop; do
+        [ -f "$f" ] || break
         gio launch "$f" &
-    fi
-done
+    done
+fi
 
 # update notifier
 if ! iconf -i noupdates && [ -z "$ISLIVE" ]; then
