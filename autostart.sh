@@ -475,7 +475,12 @@ fi &
 # start all .desktop programs from ~/.config/autostart
 for f in ~/.config/autostart/*.desktop; do  
     [ -f "$f" ] || break
-    gio launch "$f" &
+    DISABLED=$(grep '^NotShowIn' "$f" | tail -1 | sed 's/^NotShowIn=//' | sed 's/%.//' | sed 's/^"//g' | sed 's/" *$//g')
+    IFS=';' read -r -a array <<< "$DISABLED"
+    if ! [[ " ${array[*]} " == *" default "* ]]; then
+        #startup enabled
+        gio launch "$f" &
+    fi
 done
 
 # update notifier
